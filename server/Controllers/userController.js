@@ -1,4 +1,4 @@
-const userModel = require("../Model/userModel");
+const userModel = require("../Models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const validator = require("validator");
@@ -13,11 +13,11 @@ const registerUser = async (req, res) => {
 
   try {
     // Check if user with the same email already exists
-    let existingUser = await userModel.findOne({ email });
-    if (existingUser)
-      return res
-        .status(400)
-        .json({ error: "User with the given email already exists!" });
+    // let existingUser = await userModel.findOne({ email });
+    // if (existingUser)
+    //   return res
+    //     .status(400)
+    //     .json({ error: "User with the given email already exists!" });
 
     // Validate inputs
     if (!name || !email || !password)
