@@ -2,10 +2,16 @@ import { Form, Row, Col, Button, Stack, Alert } from "react-bootstrap";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 function Register() {
-  const { user } = useContext(AuthContext);
+  const {
+    registerInfo,
+    updateRegisterInfo,
+    registerUser,
+    registerError,
+    isRegisterLoading,
+  } = useContext(AuthContext);
   return (
     <>
-      <Form>
+      <Form onSubmit={registerUser}>
         <Row
           style={{
             height: "100vh",
@@ -16,25 +22,42 @@ function Register() {
           <Col xs={6}>
             <Stack gap={3}>
               <h2>Register</h2>
-              <h2>{user.name}</h2>
 
-              <Form.Control type="text" placeholder="Name" autoComplete="off" />
+              <Form.Control
+                type="text"
+                placeholder="Name"
+                autoComplete="off"
+                onChange={(e) =>
+                  updateRegisterInfo({ ...registerInfo, name: e.target.value })
+                }
+              />
               <Form.Control
                 type="email"
                 placeholder="Email"
                 autoComplete="off"
+                onChange={(e) =>
+                  updateRegisterInfo({ ...registerInfo, email: e.target.value })
+                }
               />
               <Form.Control
                 type="password"
                 placeholder="Password"
                 autoComplete="off"
+                onChange={(e) =>
+                  updateRegisterInfo({
+                    ...registerInfo,
+                    password: e.target.value,
+                  })
+                }
               />
               <Button variant="primary" type="submit">
-                Register
+                {isRegisterLoading ? "Creating your account" : "Register"}
               </Button>
-              <Alert variant="danger">
-                <p>An error occured!</p>
-              </Alert>
+              {registerError?.error && (
+                <Alert variant="danger">
+                  <p>{registerError?.message.error}</p>
+                </Alert>
+              )}
             </Stack>
           </Col>
         </Row>
