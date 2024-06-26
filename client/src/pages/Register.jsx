@@ -53,6 +53,7 @@ function Register() {
               <Button variant="primary" type="submit">
                 {isRegisterLoading ? "Creating your account" : "Register"}
               </Button>
+
               {registerError?.error && (
                 <Alert variant="danger">
                   <p>{registerError?.message.error}</p>

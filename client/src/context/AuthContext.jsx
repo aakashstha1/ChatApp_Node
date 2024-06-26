@@ -12,22 +12,31 @@ export const AuthContextProvider = ({ children }) => {
     email: "",
     password: "",
   });
-  console.log("User", user);
+  const [loginError, setLoginError] = useState(null);
+  const [isLoginLoading, setIsLoginLoading] = useState(false);
+  const [loginInfo, setLoginInfo] = useState({
+    email: "",
+    password: "",
+  });
 
   useEffect(() => {
-    const user = localStorage.getItem("User");
-
-    setUser(JSON.parse(user));
+    const storedUser = localStorage.getItem("User");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
   }, []);
 
   const updateRegisterInfo = useCallback((info) => {
     setRegisterInfo(info);
   }, []);
 
+  const updateLoginInfo = useCallback((info) => {
+    setLoginInfo(info);
+  }, []);
+
   const registerUser = useCallback(
     async (e) => {
       e.preventDefault();
-      console.log("Register button clicked");
       setIsRegisterLoading(true);
       setRegisterError(null);
 
@@ -39,19 +48,44 @@ export const AuthContextProvider = ({ children }) => {
       setIsRegisterLoading(false);
 
       if (response.error) {
-        setRegisterError(response);
+        return setRegisterError(response);
       }
 
       localStorage.setItem("User", JSON.stringify(response));
       setUser(response);
     },
     [registerInfo]
-  ); // Dependency added for useCallback
+  );
+
+  const loginUser = useCallback(
+    async (e) => {
+      e.preventDefault();
+
+      setIsLoginLoading(true);
+      setLoginError(null);
+
+      const response = await postRequest(
+        `${baseUrl}/users/login`,
+        JSON.stringify(loginInfo)
+      );
+
+      setIsLoginLoading(false);
+
+      if (response.error) {
+        return setLoginError(response);
+      }
+
+      localStorage.setItem("User", JSON.stringify(response));
+      setUser(response);
+    },
+    [loginInfo]
+  );
 
   const logoutUser = useCallback(() => {
     localStorage.removeItem("User");
     setUser(null);
   }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -61,7 +95,12 @@ export const AuthContextProvider = ({ children }) => {
         registerError,
         registerUser,
         isRegisterLoading,
-        logoutUser
+        loginInfo,
+        updateLoginInfo,
+        loginError,
+        loginUser,
+        isLoginLoading,
+        logoutUser,
       }}
     >
       {children}
