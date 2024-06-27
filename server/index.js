@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const userRoute = require("./Router/userRoute");
 const chatRoute = require("./Router/chatRoute");
+const messageRoute = require("./Router/messageRoute");
 
 const mongoose = require("mongoose");
 
@@ -19,6 +20,7 @@ app.get("/", (req, res) => {
 });
 app.use("/api/users", userRoute);
 app.use("/api/chats", chatRoute);
+app.use("/api/messages", messageRoute);
 
 app.listen(PORT, (req, res) => {
   console.log(`Server is running on port:${PORT}`);
