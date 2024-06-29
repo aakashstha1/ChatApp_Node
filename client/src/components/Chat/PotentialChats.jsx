@@ -1,11 +1,11 @@
 import { useContext } from "react";
-import { ChatContext } from "../../context/chatContext";
+import { ChatContext } from "../../context/ChatContext";
 import { AuthContext } from "../../context/AuthContext";
 
 function PotentialChats() {
   const { user } = useContext(AuthContext);
   const { potentialChats, createChat } = useContext(ChatContext);
-  console.log("potentialcharts", potentialChats);
+  // console.log("potentialcharts", potentialChats);
   return (
     <>
       <div className="all-users">

@@ -14,7 +14,7 @@ function UserChat({ chat, user }) {
     >
       <div className="d-flex">
         <div className="me-2">
-          <img src={avatar} height={"35px"} />
+          <img src={avatar} height="35px" />
         </div>
         <div className="text-content">
           <div className="name">{recipientUser?.name}</div>
