@@ -1,4 +1,3 @@
-// components/Chat/ChatBox.js
 import { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { ChatContext } from "../../context/ChatContext";
@@ -9,17 +8,7 @@ import moment from "moment";
 function ChatBox() {
   const { user } = useContext(AuthContext);
   const { currentChat, messages, isMessagesLoading } = useContext(ChatContext);
-  const { recepientUser } = useFetchRecipient(currentChat, user);
-
-  console.log("Current chat in ChatBox:", currentChat); // Add this line
-  console.log("Messages in ChatBox:", messages); // Add this line
-
-  if (!recepientUser)
-    return (
-      <p style={{ textAlign: "center", width: "100%" }}>
-        No conversation selected yet...
-      </p>
-    );
+  const { recipientUser } = useFetchRecipient(currentChat, user);
 
   if (isMessagesLoading)
     return (
@@ -29,10 +18,10 @@ function ChatBox() {
   return (
     <Stack gap={4} className="chat-box">
       <div className="chat-header">
-        <strong>{recepientUser?.name}</strong>
+        <strong>{recipientUser?.name}</strong>
       </div>
       <Stack gap={3} className="messages">
-        {messages &&
+        {messages && messages.length > 0 ? (
           messages.map((message, index) => (
             <Stack
               key={index}
@@ -47,7 +36,12 @@ function ChatBox() {
                 {moment(message.createdAt).calendar()}
               </span>
             </Stack>
-          ))}
+          ))
+        ) : (
+          <p style={{ textAlign: "center", width: "100%" }}>
+            No messages available.
+          </p>
+        )}
       </Stack>
     </Stack>
   );

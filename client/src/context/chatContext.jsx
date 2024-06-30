@@ -1,4 +1,3 @@
-// context/ChatContext.js
 import { createContext, useCallback, useEffect, useState } from "react";
 import { baseUrl, getRequest, postRequest } from "../utils/services";
 
@@ -10,7 +9,7 @@ export const ChatContextProvider = ({ children, user }) => {
   const [userChatsError, setUserChatsError] = useState(null);
   const [potentialChats, setPotentialChats] = useState([]);
   const [currentChat, setCurrentChat] = useState(null);
-  const [messages, setMessages] = useState(null);
+  const [messages, setMessages] = useState([]);
   const [isMessagesLoading, setIsMessagesLoading] = useState(false);
   const [messagesError, setMessagesError] = useState(null);
 
@@ -53,22 +52,24 @@ export const ChatContextProvider = ({ children, user }) => {
 
   useEffect(() => {
     const getMessages = async () => {
-      setIsMessagesLoading(true);
-      setMessagesError(null);
-      const response = await getRequest(
-        `${baseUrl}/messages/${currentChat?._id}`
-      );
-      setIsMessagesLoading(false);
-      if (response.error) {
-        return setMessagesError(response);
+      if (currentChat?._id) {
+        setIsMessagesLoading(true);
+        setMessagesError(null);
+        const response = await getRequest(
+          `${baseUrl}/messages/${currentChat._id}`
+        );
+        setIsMessagesLoading(false);
+        if (response.error) {
+          return setMessagesError(response);
+        }
+        setMessages(response);
       }
-      setMessages(response);
     };
     getMessages();
   }, [currentChat]);
 
   const updateCurrentChat = useCallback((chat) => {
-    console.log("Updating current chat to:", chat);
+    console.log("Updating current chat:", chat);
     setCurrentChat(chat);
   }, []);
 
@@ -92,6 +93,7 @@ export const ChatContextProvider = ({ children, user }) => {
         potentialChats,
         createChat,
         updateCurrentChat,
+        currentChat,
         messages,
         isMessagesLoading,
         messagesError,

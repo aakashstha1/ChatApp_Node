@@ -5,22 +5,26 @@ function useFetchRecipient(chat, user) {
   const [recipientUser, setRecipientUser] = useState(null);
   const [error, setError] = useState(null);
 
-  const recepientId = chat?.members?.find((id) => id !== user?._id);
+  const recipientId = chat?.members?.find((id) => id !== user?._id);
 
   useEffect(() => {
     const getUser = async () => {
-      if (!recepientId) return null;
-      const response = await getRequest(`${baseUrl}/users/find/${recepientId}`);
-
-      if (response.error) {
-        return setError(error);
+      if (!recipientId) return;
+      try {
+        const response = await getRequest(`${baseUrl}/users/find/${recipientId}`);
+        if (response.error) {
+          setError(response.error);
+        } else {
+          setRecipientUser(response);
+        }
+      } catch (err) {
+        setError(err.message);
       }
-
-      setRecipientUser(response);
     };
     getUser();
-  }, [recepientId]);
-  return { recipientUser };
+  }, [recipientId]);
+
+  return { recipientUser, error };
 }
 
 export default useFetchRecipient;
