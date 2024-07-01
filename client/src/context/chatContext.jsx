@@ -1,5 +1,6 @@
 import { createContext, useCallback, useEffect, useState } from "react";
 import { baseUrl, getRequest, postRequest } from "../utils/services";
+import { io } from "socket.io-client";
 
 export const ChatContext = createContext();
 
@@ -12,6 +13,23 @@ export const ChatContextProvider = ({ children, user }) => {
   const [messages, setMessages] = useState([]);
   const [isMessagesLoading, setIsMessagesLoading] = useState(false);
   const [messagesError, setMessagesError] = useState(null);
+  const [sendTextMessageError, setSendTextMessageError] = useState(null);
+  const [newMessage, setNewMessage] = useState(null);
+  const [socket, setSocket] = useState(null);
+  const [onlineUsers, setOnlineUsers] = useState([]);
+
+  console.log(onlineUsers);
+
+  //initial socket
+
+  useEffect(() => {
+    const newSocket = io("http://localhost:5000");
+    setSocket(newSocket);
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, [user]);
 
   useEffect(() => {
     const getUsers = async () => {
@@ -51,6 +69,14 @@ export const ChatContextProvider = ({ children, user }) => {
   }, [user]);
 
   useEffect(() => {
+    if (socket === null) return;
+    socket.emit("addNewUser", user?._id);
+    socket.on("getOnlineUsers", (res) => {
+      setOnlineUsers(res);
+    });
+  }, [socket]);
+
+  useEffect(() => {
     const getMessages = async () => {
       if (currentChat?._id) {
         setIsMessagesLoading(true);
@@ -67,6 +93,29 @@ export const ChatContextProvider = ({ children, user }) => {
     };
     getMessages();
   }, [currentChat]);
+
+  const sendTextMessage = useCallback(
+    async (textMessage, sender, currentChatId, setTextMessage) => {
+      if (!textMessage) return console.log("Please enter some text...");
+
+      const response = await postRequest(
+        `${baseUrl}/messages`,
+        JSON.stringify({
+          chatId: currentChatId,
+          senderId: sender._id,
+          text: textMessage,
+        })
+      );
+      if (response.error) {
+        return setSendTextMessageError(response);
+      }
+
+      setNewMessage(response);
+      setMessages((prev) => [...prev, response]);
+      setTextMessage("");
+    },
+    []
+  );
 
   const updateCurrentChat = useCallback((chat) => {
     console.log("Updating current chat:", chat);
@@ -97,6 +146,8 @@ export const ChatContextProvider = ({ children, user }) => {
         messages,
         isMessagesLoading,
         messagesError,
+        sendTextMessage,
+        onlineUsers
       }}
     >
       {children}

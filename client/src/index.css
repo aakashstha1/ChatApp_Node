@@ -93,27 +93,27 @@ body {
 
 .message.self {
   color: white;
-  background: #00bd9b;
+  background: #606060;
 }
 
 .message-footer {
   font-size: 12px;
   align-self: flex-end;
-  font-weight: 400;
+  font-weight: 400; 
 }
 
 /* Chat Input  */
 .chat-input {
   width: 100%;
-  background: rgb(30, 30, 30);
+  background: #007bff;
   padding: 1rem;
 }
 .send-btn {
   border: none;
-  background: rgba(72, 112, 223, 1);
-  color: white;
-  height: 40px;
-  width: 40px;
+  background: rgb(131, 164, 255);
+  color: rgb(255, 255, 255);
+  height: 50px;
+  width: 50px;
   border-radius: 50%;
 }
 
