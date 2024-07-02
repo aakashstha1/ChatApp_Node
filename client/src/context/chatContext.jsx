@@ -17,8 +17,9 @@ export const ChatContextProvider = ({ children, user }) => {
   const [newMessage, setNewMessage] = useState(null);
   const [socket, setSocket] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
+  const [notifications, setNotifications] = useState([]);
 
-  console.log(onlineUsers);
+  console.log(notifications);
 
   //initial socket
 
@@ -30,6 +31,51 @@ export const ChatContextProvider = ({ children, user }) => {
       newSocket.disconnect();
     };
   }, [user]);
+
+  useEffect(() => {
+    if (socket === null) return;
+    socket.emit("addNewUser", user?._id);
+    socket.on("getOnlineUsers", (res) => {
+      setOnlineUsers(res);
+    });
+
+    return () => {
+      socket.off("getOnlineUsers");
+    };
+  }, [socket]);
+
+  //Send Message
+  useEffect(() => {
+    if (socket === null) return;
+
+    const recipientId = currentChat?.members?.find((id) => id !== user?._id);
+
+    socket.emit("sendMessage", { ...newMessage, recipientId });
+  }, [newMessage]);
+
+  //received Message and Notification
+  useEffect(() => {
+    if (socket === null) return;
+    socket.on("getMessage", (res) => {
+      if (currentChat?._id !== res.chatId) return;
+      setMessages((prev) => [...prev, res]);
+    });
+
+    socket.on("getNotification", (res) => {
+      const isChatOpen = currentChat?.members.some((id) => id === res.senderId);
+
+      if (isChatOpen) {
+        setNotifications((prev) => [{ ...res, isRead: true }, ...prev]);
+      } else {
+        setNotifications((prev) => [res, ...prev]);
+      }
+    });
+
+    return () => {
+      socket.off("getMessage");
+      socket.off("getNotification");
+    };
+  }, [socket, currentChat]);
 
   useEffect(() => {
     const getUsers = async () => {
@@ -69,27 +115,17 @@ export const ChatContextProvider = ({ children, user }) => {
   }, [user]);
 
   useEffect(() => {
-    if (socket === null) return;
-    socket.emit("addNewUser", user?._id);
-    socket.on("getOnlineUsers", (res) => {
-      setOnlineUsers(res);
-    });
-  }, [socket]);
-
-  useEffect(() => {
     const getMessages = async () => {
-      if (currentChat?._id) {
-        setIsMessagesLoading(true);
-        setMessagesError(null);
-        const response = await getRequest(
-          `${baseUrl}/messages/${currentChat._id}`
-        );
-        setIsMessagesLoading(false);
-        if (response.error) {
-          return setMessagesError(response);
-        }
-        setMessages(response);
+      setIsMessagesLoading(true);
+      setMessagesError(null);
+      const response = await getRequest(
+        `${baseUrl}/messages/${currentChat?._id}`
+      );
+      setIsMessagesLoading(false);
+      if (response.error) {
+        return setMessagesError(response);
       }
+      setMessages(response);
     };
     getMessages();
   }, [currentChat]);
@@ -147,7 +183,8 @@ export const ChatContextProvider = ({ children, user }) => {
         isMessagesLoading,
         messagesError,
         sendTextMessage,
-        onlineUsers
+        onlineUsers,
+        notifications,
       }}
     >
       {children}
