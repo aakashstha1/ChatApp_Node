@@ -14,21 +14,32 @@ function ChatBox() {
   const [textMessage, setTextMessage] = useState("");
   const scroll = useRef();
 
-  // console.log("text", textMessage);
-
   useEffect(() => {
     scroll.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const handleSendMessage = () => {
-    sendTextMessage(textMessage, user, currentChat._id);
-    setTextMessage(""); // Clear input after sending
+    if (currentChat && currentChat._id) {
+      sendTextMessage(textMessage, user, currentChat._id);
+      setTextMessage(""); // Clear input after sending
+    } else {
+      console.error("currentChat or currentChat._id is null/undefined");
+      console.log("currentChat:", currentChat);
+      console.log("user:", user);
+    }
   };
 
-  if (isMessagesLoading)
+  if (isMessagesLoading) {
     return (
       <p style={{ textAlign: "center", width: "100%" }}>Loading Chat...</p>
     );
+  }
+
+  if (!currentChat) {
+    return (
+      <p style={{ textAlign: "center", width: "100%" }}>No active chat.</p>
+    );
+  }
 
   return (
     <Stack gap={4} className="chat-box">

@@ -7,7 +7,7 @@ function Login() {
     useContext(AuthContext);
   return (
     <>
-      <Form on onSubmit={loginUser}>
+      <Form onSubmit={loginUser}>
         <Row
           style={{
             height: "100vh",
@@ -35,7 +35,7 @@ function Login() {
                 }}
               />
               <Button variant="primary" type="submit">
-                {isLoginLoading ? "Loging in" : "Login"}
+                {isLoginLoading ? "Logging in" : "Login"}
               </Button>
               {loginError?.error && (
                 <Alert variant="danger">
